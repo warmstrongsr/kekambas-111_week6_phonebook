@@ -1,21 +1,20 @@
 from flask_wtf import FlaskForm
-from wtforms.widgets import TextInput
-from wtforms import StringField, SubmitField, TextAreaField, validators, EmailField, PasswordField
-from wtforms.validators import DataRequired,InputRequired, EqualTo, Length, Optional 
+from wtforms import StringField, SubmitField, EmailField, PasswordField
+from wtforms.validators import InputRequired, EqualTo, Length
 
 
 class AddressForm(FlaskForm):
     first_name = StringField('First Name', validators=[InputRequired()])
     last_name = StringField('Last Name', validators=[InputRequired()])
-    phone = StringField('Phone', validators=[DataRequired(), Length(min=10,max=20, message="Please enter a valid phone number.")])
-    address = TextAreaField('Mailing Address', [validators.optional(), validators.length(max=200)])
-    submit = SubmitField('Submit')
+    phone = StringField('Phone', validators=[InputRequired(), Length(min=10,max=20, message="Please enter a valid phone number.")])
+    address = StringField('Phone Number', validators=[InputRequired()])
+    submit = SubmitField('Submit Address')
     
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Log In')
     
     
 class SignUpForm(FlaskForm):
@@ -26,3 +25,7 @@ class SignUpForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
     confirm_pass = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
+
+class SearchForm(FlaskForm):
+    search_term = StringField('Search Term')
+    submit = SubmitField('Search')

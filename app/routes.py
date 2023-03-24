@@ -1,14 +1,19 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash
 # from fake_data import posts
-from app.forms import SignUpForm, LoginForm, AddressForm
+from app.forms import SignUpForm, LoginForm, AddressForm, SearchForm
 from app.models import User, Address
 from flask_login import login_user, logout_user, login_required, current_user
 
 @app.route('/')
 def index():
-    address = Address.query.all()
-    return render_template('index.html', posts=address)
+    addresses = Address.query.all()
+    form = SearchForm()
+    if form.validate_on_submit():
+        search_term = form.search_term.data
+        addresses = db.session.execute(db.select(Address).where((Address.title.ilike(f"%{search_term}%")) | (Address.body.ilike(f"%{search_term}%")))).scalars().all()
+        # addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
+    return render_template('index.html', addresses=addresses, form=form)
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -18,7 +23,7 @@ def signup():
     # Check if the form was submitted and that all of the fields are valid
     if form.validate_on_submit():
         # If so, get the data from the form fields
-        print('Hooray our form was validated!!')
+        print('The form has been validated.')
         first_name = form.first_name.data
         last_name = form.last_name.data
         email = form.email.data
@@ -76,15 +81,15 @@ def create_address():
         first_name = form.title.data
         last_name = form.body.data
         phone = form.phone.data or None
-        _user_address = form.user_address.data or None
+        user_address = form.user_address.data or None
         # Create an instance of Post with form data AND auth user ID
-        new_post = Address(first_name=first_name, last_name=last_name, phone=phone, user_id=current_user.id)
-        flash(f"{new_post.title} has been created!", "success")
+        new_address = Address(first_name=first_name, last_name=last_name, phone=phone, user_id=current_user.id)
+        flash(f"{new_address.title} has been created!", "success")
         return redirect(url_for('index'))
     return render_template('create.html', form=form)
 
 
-@app.route('/edit/<post_id>', methods=["GET", "POST"])
+@app.route('/edit/<address_id>', methods=["GET", "POST"])
 @login_required
 def edit_address(address_id):
     form = AddressForm()
