@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Create A Post{% endblock %}
+{% block title %}New Address and Phone{% endblock %}
 
 {% block header %}
-<h1>Create A Post</h1>
+<h1>Add a New Address</h1>
 {% endblock %}
 
 {% block content %}
@@ -14,17 +14,19 @@
                 <form action="" method="post">
                     {{ form.csrf_token }}
 
-                    {{ form.title.label }}
-                    {{ form.title(class="form-control", placeholder="Enter Post
-                    Title") }}
+                    {{ form.first_name.label }}
+                    {{ form.first_name(class="form-control", placeholder="Enter First Name here
+                    ") }}
 
-                    {{ form.body.label }}
-                    {{ form.body(class="form-control", placeholder="Enter Post
-                    Body") }}
+                    {{ form.last_name.label }}
+                    {{ form.last_name(class="form-control", placeholder="Enter Last Name here
+                    ") }}
 
-                    {{ form.image_url.label }}
-                    {{ form.image_url(class="form-control", placeholder="Enter
-                    Image URL") }}
+                    {{ form.phone.label }}
+                    {{ form.phone(class="form-control", placeholder="Enter Phone Number here") }}
+
+                    {{ form.address.label }}
+                    {{ form.address(class="form-control", placeholder="Enter Address here") }}
 
                     {{ form.submit(class="btn btn-primary w-100 mt-3") }}
 

@@ -15,6 +15,16 @@ def index():
         # addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
     return render_template('index.html', addresses=addresses, form=form)
 
+@app.route('/account')
+def account():
+    addresses = Address.query.filter_by(user_id=current_user.id).all()
+    form = SearchForm()
+    username = current_user.username
+    if form.validate_on_submit():
+        search_term = form.search_term.data
+        addresses = db.session.execute(db.select(Address).where((Address.title.ilike(f"%{search_term}%")) | (Address.body.ilike(f"%{search_term}%")))).scalars().all()
+        # addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
+    return render_template('account.html', addresses=addresses, form=form, username=username)
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -81,11 +91,12 @@ def create_address():
         first_name = form.first_name.data
         last_name = form.last_name.data
         phone = form.phone.data or None
-        user_address = form.user_address.data or None
-        # Create an instance of Post with form data AND auth user ID
-        new_address = Address(first_name=first_name, last_name=last_name, phone=phone, user_address=user_address.id)
-        flash(f"{new_address.title} has been created!", "success")
-        return redirect(url_for('index'))
+        address = form.address.data or None
+        user_id = current_user.id
+        # Create an instance of Address with form data AND auth user ID
+        new_address = Address(first_name=first_name, last_name=last_name, phone=phone, address=address, user_id=user_id)
+        flash(f"{new_address.address} has been created!", "success")
+        return redirect(url_for('account'))
     return render_template('create.html', form=form)
 
 
@@ -95,16 +106,17 @@ def edit_address(address_id):
     form = AddressForm()
     address_to_edit = Address.query.get_or_404(address_id)
     # Make sure that the post author is the current user
-    if address_to_edit.author != current_user:
+    if address_to_edit.user != current_user:
         flash("You do not have permission to edit this address", "danger")
         return redirect(url_for('index'))
 
     # If form submitted, update Post
     if form.validate_on_submit():
         # update the post with the form data
-        address_to_edit.title = form.title.data
-        address_to_edit.body = form.body.data
-        address_to_edit.image_url = form.image_url.data
+        address_to_edit.first_name = form.first_name.data
+        address_to_edit.last_name = form.last_name.data
+        address_to_edit.phone = form.phone.data
+        address_to_edit.address = form.address.data
         # Commit that to the database
         db.session.commit()
         flash(f"{address_to_edit.title} has been edited!", "success")
@@ -118,15 +130,15 @@ def edit_address(address_id):
     return render_template('edit.html', form=form, address=address_to_edit)
 
 
-@app.route('/delete/<address>')
+@app.route('/delete/<address_id>')
 @login_required
-def delete_address(address):
-    address_to_delete = Address.query.get_or_404(address.address)
-    if address_to_delete.author != current_user:
+def delete_address(address_id):
+    address_to_delete = Address.query.get_or_404(address_id)
+    if address_to_delete.user != current_user:
         flash("You do not have permission to delete this post", "danger")
         return redirect(url_for('index'))
 
     db.session.delete(address_to_delete)
     db.session.commit()
-    flash(f"{address_to_delete.title} has been deleted", "info")
-    return redirect(url_for('index'))
+    flash(f"{address_to_delete.address} has been deleted", "info")
+    return redirect(url_for('account'))
