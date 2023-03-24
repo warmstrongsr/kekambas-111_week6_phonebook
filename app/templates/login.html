@@ -1,14 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %} Home {% endblock %}
+{% block title %} Log In {% endblock %}
 
 {% block header %}
-<h1>Phonebook</h1>
-{% if logged_in %}
-<h5>Nice to see you again!</h5>
-{% else %}
-<h5>Please Log In</h5>
-{% endif %}
+<h1>Log In</h1>
 {% endblock %}
 
 {% block content %}
@@ -17,7 +12,7 @@
         <div class="card mt-3">
             <div class="card-body">
                 <form action="" method="post">
-                
+                {{form.csrf_token}}
                 {{ form.username.label }}
                 {{ form.username(class="form-control", placeholder="Enter Username") }}
                 

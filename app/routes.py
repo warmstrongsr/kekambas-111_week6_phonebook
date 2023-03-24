@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, flash
 # from fake_data import posts
 from app.forms import SignUpForm, LoginForm, AddressForm, SearchForm
 from app.models import User, Address
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 @app.route('/')
 def index():
@@ -39,7 +39,7 @@ def signup():
         # If check_user is empty, create a new record in the user table
         new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
         flash(f"Thank you {new_user.username} for signing up!", "success")
-        return redirect(url_for('account'))
+        return redirect(url_for('index'))
     return render_template('signup.html', form=form)
 
 
@@ -57,7 +57,7 @@ def login():
             # If the user exists and has the correct password, log them in
             login_user(user)
             flash(f'You have successfully logged in as {username}', 'success')
-            return redirect(url_for('account'))
+            return redirect(url_for('index'))
         else:
             flash('Invalid username and/or password. Please try again', 'danger')
             return redirect(url_for('login'))
@@ -78,12 +78,12 @@ def create_address():
     form = AddressForm()
     if form.validate_on_submit():
         # Get the data from the form
-        first_name = form.title.data
-        last_name = form.body.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
         phone = form.phone.data or None
         user_address = form.user_address.data or None
         # Create an instance of Post with form data AND auth user ID
-        new_address = Address(first_name=first_name, last_name=last_name, phone=phone, user_id=current_user.id)
+        new_address = Address(first_name=first_name, last_name=last_name, phone=phone, user_address=user_address.id)
         flash(f"{new_address.title} has been created!", "success")
         return redirect(url_for('index'))
     return render_template('create.html', form=form)
@@ -118,10 +118,10 @@ def edit_address(address_id):
     return render_template('edit.html', form=form, address=address_to_edit)
 
 
-@app.route('/delete/<post_id>')
+@app.route('/delete/<address>')
 @login_required
-def delete_post(post_id):
-    address_to_delete = Address.query.get_or_404(post_id)
+def delete_address(address):
+    address_to_delete = Address.query.get_or_404(address.address)
     if address_to_delete.author != current_user:
         flash("You do not have permission to delete this post", "danger")
         return redirect(url_for('index'))
