@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Create A Post{% endblock %}
+
+{% block header %}
+<h1>Create A Post</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <div class="card mt-3">
+            <div class="card-body">
+                <form action="" method="post">
+                    {{ form.csrf_token }}
+
+                    {{ form.title.label }}
+                    {{ form.title(class="form-control", placeholder="Enter Post
+                    Title") }}
+
+                    {{ form.body.label }}
+                    {{ form.body(class="form-control", placeholder="Enter Post
+                    Body") }}
+
+                    {{ form.image_url.label }}
+                    {{ form.image_url(class="form-control", placeholder="Enter
+                    Image URL") }}
+
+                    {{ form.submit(class="btn btn-primary w-100 mt-3") }}
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

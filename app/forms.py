@@ -12,20 +12,17 @@ class AddressForm(FlaskForm):
     submit = SubmitField('Submit')
     
 
-# class LoginForm(FlaskForm):
-#     username = StringField('Username', validators=[InputRequired()])
-#     email = EmailField('Email', validators=[InputRequired()])
-#     password = PasswordField('Password', validators=[InputRequired()])
-#     submit = SubmitField('Login')
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    submit = SubmitField('Login')
     
     
-    # class MyTextInput(TextInput):
-#     def __init__(self, error_class='has_errors'):
-#         super(MyTextInput, self).__init__()
-#         self.error_class = error_class
-
-#     def __call__(self, field, **kwargs):
-#         if field.errors:
-#             c = kwargs.pop('class', '') or kwargs.pop('class_', '')
-#             kwargs['class'] = '%s %s' % (self.error_class, c)
-#         return super(MyTextInput, self).__call__(field, **kwargs)
+class SignUpForm(FlaskForm):
+    first_name = StringField('First Name', validators=[InputRequired()])
+    last_name = StringField('Last Name', validators=[InputRequired()])
+    username = StringField('Username', validators=[InputRequired()])
+    email = EmailField('Email', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    confirm_pass = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
