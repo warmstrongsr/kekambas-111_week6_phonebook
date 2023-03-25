@@ -7,13 +7,15 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 
 @app.route('/')
 def index():
-    addresses = Address.query.all()
+    addresses = Address.query.order_by(Address.last_name.asc()).all()
     form = SearchForm()
     if form.validate_on_submit():
         search_term = form.search_term.data
-        addresses = db.session.execute(db.select(Address).where((Address.title.ilike(f"%{search_term}%")) | (Address.body.ilike(f"%{search_term}%")))).scalars().all()
-        # addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
+        addresses = db.session.execute(db.select(Address).where((Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%")))).scalars().all()
+        addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
     return render_template('index.html', addresses=addresses, form=form)
+@app.route('/')
+
 
 @app.route('/account')
 def account():
@@ -22,7 +24,7 @@ def account():
     username = current_user.username
     if form.validate_on_submit():
         search_term = form.search_term.data
-        addresses = db.session.execute(db.select(Address).where((Address.title.ilike(f"%{search_term}%")) | (Address.body.ilike(f"%{search_term}%")))).scalars().all()
+        addresses = db.session.execute(db.select(Address).where((Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%")))).scalars().all()
         # addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
     return render_template('account.html', addresses=addresses, form=form, username=username)
 
@@ -49,7 +51,7 @@ def signup():
         # If check_user is empty, create a new record in the user table
         new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
         flash(f"Thank you {new_user.username} for signing up!", "success")
-        return redirect(url_for('index'))
+        return redirect(url_for('login'))
     return render_template('signup.html', form=form)
 
 
