@@ -5,29 +5,31 @@ from app.forms import SignUpForm, LoginForm, AddressForm, SearchForm
 from app.models import User, Address
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    addresses = Address.query.order_by(Address.last_name.asc()).all()
     form = SearchForm()
     if form.validate_on_submit():
         search_term = form.search_term.data
-        addresses = Address.query.filter(Address.address.ilike(f"%{search_term}%")).all()
-        addresses = db.session.execute(db.select(Address).where((Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%")))).scalars().all()
+        addresses = Address.query.filter((Address.first_name.ilike(f"%{search_term}%")) | (Address.last_name.ilike(f"%{search_term}%")) | (Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%"))).order_by(Address.last_name.asc()).all()
+    else:
+        addresses = Address.query.order_by(Address.last_name.asc()).all()
 
     return render_template('index.html', addresses=addresses, form=form)
-@app.route('/')
 
-
-@app.route('/account')
+@app.route('/account', methods=['GET', 'POST'])
+@login_required
 def account():
-    addresses = Address.query.filter_by(user_id=current_user.id).all()
     form = SearchForm()
+    addresses = Address.query.filter_by(user_id=current_user.id).order_by(Address.last_name.asc()).all()
     username = current_user.username
+
     if form.validate_on_submit():
         search_term = form.search_term.data
-        addresses = db.session.execute(db.select(Address).where((Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%")))).scalars().all()
-        # addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
+        addresses = Address.query.filter((Address.first_name.ilike(f"%{search_term}%")) | (Address.last_name.ilike(f"%{search_term}%"))| (Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%")), Address.user_id==current_user.id).order_by(Address.last_name.asc()).all()
+
     return render_template('account.html', addresses=addresses, form=form, username=username)
+
+
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -70,7 +72,7 @@ def login():
             # If the user exists and has the correct password, log them in
             login_user(user)
             flash(f'You have successfully logged in as {username}', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('account'))
         else:
             flash('Invalid username and/or password. Please try again', 'danger')
             return redirect(url_for('login'))

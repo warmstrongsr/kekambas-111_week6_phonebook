@@ -3,40 +3,91 @@
 {% block title %} Your Address Book {% endblock %}
 
 {% block header %}
-<h1>Phonebook</h1>
+<!-- <h1>Phonebook</h1> -->
 {% if current_user.is_authenticated %}
-<h5>{{ current_user.username.title() }}'s addressbook</h5>
+<h1>{{ current_user.username.title() }}'s Addressbook</h1>
 {% else %}
 <h5>Please Sign Up or Log In to Create or Update Address Books</h5>
 {% endif %}
 {% endblock %}
 
 {% block content %}
+
 <div class="row">
     <!-- Left 2/3 Column -->
-    <div class="col-4 col-lg-6 order-1 order-lg-4">
+    <div class="col-12 col-lg-14 order-1 order-lg-0">
+
+
+        <div class="container mt-3">
+
+
+            </table>
+            <!-- <thead class="thead-subtle - text-left"> -->
+            <table
+                class="table table-bordered  - table-group-divider - table-hover - bg-light-subtle - text-center">
+
+                <tr>
+                    <th>Lastname</th>
+                    <th>Firstname</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Date Added</th>
+                    <th>User ID | User Name</th>
+
+
+                </tr>
+                </thead>
+                {% for address in addresses %}
+
+                <tbody>
+                    <tr>
+                        <td>{{ address.last_name }}</td>
+                        <td>{{ address.first_name }}</td>
+                        <td>{{ address.phone }}</td>
+                        <td>{{ address.address }}</td>
+                        <td>{{ address.date_created }}</td>
+                        <td>{{ address.user.username }}</td>
+
+                    </tr>
+                    {% endfor %}
+
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<div class="row d-flex justify-content-center">
+    <!-- Left 2/3 Column -->
+
+    <!-- <div class="row">
+    <!-- Left 2/3 Column -->
+    <div class="col-12 col-lg-6 order-0 order-lg-1">
         {% for address in addresses %}
         <div class="card mt-3">
             <div class="card-body">
 
                 <h5 class="card-title">{{ address.last_name + ", " +
                     address.first_name }}</h5>
-                
+
                 <p class="card-text">{{ address.address }}<br>
                     {{address.phone }}<br>
-                
+
                 <h6 class="card-subtitle text-muted">Date Added: {{
                     address.date_created}}</h6>
-                
-            {% if address.user %}
-            {% if address.user == current_user %}
-            <small class="card-subtitle">By: You</small>
-            {% else %}
-            <small class="card-subtitle">By: {{ address.user.username.title() }}</small>
-            {% endif %}
-            {% else %}
-            <small class="card-subtitle">By: Unknown</small>
-            {% endif %}
+
+                {% if address.user %}
+                {% if address.user == current_user %}
+                <small class="card-subtitle">By: You</small>
+                {% else %}
+                <small class="card-subtitle">By: {{
+                    address.user.username.title() }}</small>
+                {% endif %}
+                {% else %}
+                <small class="card-subtitle">By: Unknown</small>
+                {% endif %}
             </div>
             <div class="card-footer">
                 {% if address.user == current_user %}
@@ -49,8 +100,8 @@
             </div>
         </div>
         {% endfor %}
+        
     </div>
-
     <!-- Modal -->
     {% for address in addresses %}
     <div class="modal fade" id="deleteaddressModal-{{ address.id }}"
@@ -70,13 +121,15 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary"
                         data-bs-dismiss="modal">Close</button>
-                    <a href="{{ url_for('delete_address', address_id=address.address) }}"
+                    <a href="{{ url_for('delete_address', address_id=address.id) }}"
                         class="btn btn-danger">Delete
-                        address</a>
+                        Address</a>
                 </div>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
+
+
 {% endblock %}
