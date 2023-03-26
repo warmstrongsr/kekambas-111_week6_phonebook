@@ -5,7 +5,7 @@
 {% block header %}
 <h1>Phonebook</h1>
 {% if current_user.is_authenticated %}
-<h5>Nice to see you again, {{ current_user.username }}!</h5>
+<h5>Nice to see you again, {{ current_user.username.title() }}!</h5>
 {% else %}
 <h5>Please Sign Up or Log In to Create or Update Address Books</h5>
 {% endif %}
@@ -33,84 +33,86 @@
                         <h6 class="card-subtitle text-muted">Date Added: {{
                             address.date_created}}</h6>
 
-                        {% if address.user %}
-                        <small class="card-subtitle">By: {{
-                            address.user.username.title()}}
-                        </small>
-                        <smaller class="card-subtitle">By: Unknown</>
-                            {% else %}
-                            <smaller class="card-subtitle">By: Unknown</>
-                                {% endif %}
-
-                                {% if address.user == current_user %}
-                                <a href="{{ url_for('edit_address', address_id=address.id) }}"
-                                    class="btn btn-success">Edit</a>
-                                <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteaddressModal-{{ address.id }}">
-                                    Delete
-                                </button>
-                                {% endif %}
+                    {% if address.user %}
+                    {% if address.user == current_user %}
+                    <small class="card-subtitle">By: You</small>
+                    {% else %}
+                    <small class="card-subtitle">By: {{ address.user.username.title() }}</small>
+                    {% endif %}
+                    {% else %}
+                    <small class="card-subtitle">By: Unknown</small>
+                    {% endif %}
+                            <div class="card-footer">
+                        {% if address.user == current_user %}
+                        <a href="{{ url_for('edit_address', address_id=address.id) }}"
+                            class="btn btn-success">Edit</a>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteaddressModal-{{ address.id }}">
+                            Delete
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal -->
-        <div class="modal fade" id="deleteaddressModal-{{ address.id }}" tabindex="-1"
-            aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteaddressModal-{{ address.id }}"
+            tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalLabel">
-                            Delete {{ address.address }}?</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+                            Delete {{ address.last_name, address.first_name }}?
+                        </h1>
+                        <button type="button" class="btn-close"
+                            data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete {{ address.address }}? This
+                        Are you sure you want to delete {{ address.last_name,
+                        address.first_name }}? This
                         action cannot be undone.
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"
                             data-bs-dismiss="modal">Close</button>
-                        <a href="{{ url_for('delete_address', address_id=address.address) }}"
-                            class="btn btn-danger">Delete address</a>
+                        <a href="{{ url_for('delete_address', address_id=address.id) }}"
+                            class="btn btn-danger">Delete Address</a>
                     </div>
                 </div>
             </div>
         </div>
         {% endfor %}
-        
-        
-        </div>
 
 
     </div>
 
-    <!-- Right 1/3 Column -->
-    <div class="col-12 col-lg-4 order-0 order-lg-1">
 
-        <div class="position-sticky top-0">
-            <div class="card mt-3">
-                <div class="card-header">Search</div>
-                <div class="card-body">
-                    <form action="">
-                        <div class="input-group">
-                            <input type="text" class="form-control"
-                                {{form.search_term(class="form-control" ,
-                                placeholder="Enter Search Term..." )}}
-                                {{form.submit(class="btn bt=btn-primary" )}}
-                                <button type="submit"
-                                class="btn btn-primary">Search</button>
-                        </div>
-                    </form>
-                </div>
+</div>
+
+<!-- Right 1/3 Column -->
+<div class="col-12 col-lg-4 order-0 order-lg-1">
+
+    <div class="position-sticky top-0">
+        <div class="card mt-3">
+            <div class="card-header">Search</div>
+            <div class="card-body">
+                <form action="" method="post">
+                    {{ form.csrf_token }}
+                    <div class="input-group">
+                        {{ form.search_term(class="form-control",
+                        placeholder="Enter Search Term...")}}
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
             </div>
         </div>
-
     </div>
+
+</div>
 
 </div>
 {% endblock %}

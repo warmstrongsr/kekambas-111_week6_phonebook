@@ -5,14 +5,15 @@ from app.forms import SignUpForm, LoginForm, AddressForm, SearchForm
 from app.models import User, Address
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def index():
     addresses = Address.query.order_by(Address.last_name.asc()).all()
     form = SearchForm()
     if form.validate_on_submit():
         search_term = form.search_term.data
+        addresses = Address.query.filter(Address.address.ilike(f"%{search_term}%")).all()
         addresses = db.session.execute(db.select(Address).where((Address.phone.ilike(f"%{search_term}%")) | (Address.address.ilike(f"%{search_term}%")))).scalars().all()
-        addresses = db.session.execute(db.select(Address).where(Address.title.ilike(f"%{search_term}%"))).scalars().all()
+
     return render_template('index.html', addresses=addresses, form=form)
 @app.route('/')
 
@@ -121,14 +122,14 @@ def edit_address(address_id):
         address_to_edit.address = form.address.data
         # Commit that to the database
         db.session.commit()
-        flash(f"{address_to_edit.title} has been edited!", "success")
-        return redirect(url_for('index'))
+        flash(f"{address_to_edit.last_name, address_to_edit.first_name} has been edited!", "success")
+        return redirect(url_for('account'))
 
-    # Pre-populate the form with Post To Edit's values
-    form.first_name.data = address_to_edit.title
-    form.last_name.data = address_to_edit.body
-    form.phone.data = address_to_edit.image_url
-    form.address.data = address_to_edit.image_url
+    # Pre-populate the form with Address To Edit's values
+    form.first_name.data = address_to_edit.first_name
+    form.last_name.data = address_to_edit.last_name
+    form.phone.data = address_to_edit.phone
+    form.address.data = address_to_edit.address
     return render_template('edit.html', form=form, address=address_to_edit)
 
 
@@ -138,7 +139,7 @@ def delete_address(address_id):
     address_to_delete = Address.query.get_or_404(address_id)
     if address_to_delete.user != current_user:
         flash("You do not have permission to delete this post", "danger")
-        return redirect(url_for('index'))
+        return redirect(url_for('account'))
 
     db.session.delete(address_to_delete)
     db.session.commit()
